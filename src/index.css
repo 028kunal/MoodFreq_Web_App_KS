@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Your custom CSS can go here */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Ensure tailwind-scrollbar-hide plugin is installed and configured */
+
+/* Add these rules at the very end of the file to hide the scrollbar for the audio players container */
+#audio-players-scroll-container {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+#audio-players-scroll-container::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari */
+}
+
+/* Keyframes for gradient text animation */
+@keyframes gradient-text-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Utility class for the gradient text animation */
+.animate-gradient-text {
+  background-size: 200% auto; /* Make background larger than text */
+  animation: gradient-text-animation 5s linear infinite;
+}
+
+/* Keyframes for FAST gradient text animation */
+@keyframes fast-gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Utility class for the FAST gradient text animation */
+.animate-fast-gradient-text {
+  background-size: 200% auto; /* Make background larger than text */
+  animation: fast-gradient-animation 2s linear infinite; /* Adjust duration for speed */
+}
