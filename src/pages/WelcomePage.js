@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import AnimatedLogo from '../components/AnimatedLogo';
+import CursorEffect from '../components/effects/CursorEffect';
 
 const WelcomePage = () => {
   const navigate = useNavigate();
@@ -16,45 +18,33 @@ const WelcomePage = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-dark-primary flex items-center justify-center relative overflow-hidden">
-      {/* Subtle background animation */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute w-full h-full bg-gradient-to-br from-purple-800/20 via-indigo-800/20 to-transparent animate-gradient-slow" />
-        <div className="absolute w-full h-full bg-gradient-to-tl from-blue-800/20 via-teal-800/20 to-transparent animate-gradient-slow delay-700" />
-        {/* Additional animated background elements */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ scale: [0.8, 1.8, 0.8] }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute top-[10%] left-[10%] w-96 h-96 bg-purple-600 rounded-full mix-blend-screen opacity-5"
-        />
-        <motion.div
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ scale: [1, 2, 1]}}
-          transition={{ duration: 30, repeat: Infinity, ease: "linear", delay: 3 }}
-          className="absolute bottom-[10%] right-[10%] w-[500px] h-[500px] bg-blue-600 rounded-full mix-blend-screen opacity-5"
-        />
-        <motion.div
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ scale: [0.6, 1.5, 0.6]}}
-          transition={{ duration: 22, repeat: Infinity, ease: "linear", delay: 1.5 }}
-          className="absolute top-1/2 left-1/2 w-72 h-72 bg-teal-500 rounded-full mix-blend-screen opacity-5 transform -translate-x-1/2 -translate-y-1/2"
-        />
-        {/* You can add more background elements or particle effects here if desired */}
+    <div className="min-h-screen bg-dark-primary text-dark-text-primary py-16 relative overflow-hidden">
+      {/* Interactive background with green tint */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute w-full h-full bg-gradient-to-br from-green-900/10 via-dark-primary to-dark-primary" />
       </div>
 
-      {/* Centered Content */}
-      <div className="relative z-10">
+      {/* Animated Logo in the center background */}
+      <div className="absolute inset-0 flex items-center justify-center z-0">
+        <AnimatedLogo size="default" />
+      </div>
+
+      {/* Add the CursorEffect component - Increased z-index */}
+      <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden">
+        <CursorEffect />
+      </div>
+
+      {/* Content - Centering the existing title within the new container */}
+      <div className="relative z-10 container mx-auto px-4 max-w-6xl flex items-center justify-center min-h-screen-minus-padding">
         <motion.h1
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, ease: "easeOut" }}
-          className="text-7xl md:text-8xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-600 drop-shadow-lg leading-tight animate-fast-gradient-text"
+          className="text-7xl md:text-8xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-500 drop-shadow-lg leading-tight text-center"
           style={{ backgroundSize: '200% auto' }}
         >
           MindTones
         </motion.h1>
-        {/* Optional: Add a subtitle or logo animation below */}
       </div>
     </div>
   );

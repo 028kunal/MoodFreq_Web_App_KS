@@ -1,19 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
+import AnimatedLogo from '../components/AnimatedLogo';
+import CursorEffect from '../components/effects/CursorEffect';
 
 const SciencePage = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const orbRef = useRef(null);
-  
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
   const frequencies = [
     {
       name: 'Beta Waves',
@@ -70,43 +60,20 @@ const SciencePage = () => {
       {/* Interactive background with green tint */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute w-full h-full bg-gradient-to-br from-green-900/10 via-dark-primary to-dark-primary" />
-        
-        {/* Glowing orb effect */}
-        <motion.div 
-          ref={orbRef}
-          className="absolute w-[600px] h-[600px] rounded-full bg-green-500/5 blur-[100px]"
-          animate={{
-            x: [0, 100, 50, 200, 0],
-            y: [0, 200, 100, 50, 0],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            repeatType: "reverse"
-          }}
-        />
-        
-        {/* Mouse follower effect */}
-        <motion.div 
-          className="absolute w-64 h-64 rounded-full bg-green-500/10 blur-3xl pointer-events-none"
-          animate={{
-            x: mousePosition.x - 128,
-            y: mousePosition.y - 128,
-          }}
-          transition={{
-            type: "spring",
-            damping: 30,
-            stiffness: 200,
-            mass: 3
-          }}
-        />
-        
-        {/* Grid pattern overlay */}
-        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 max-w-6xl">
+      {/* Animated Logo in the center background */}
+      <div className="absolute inset-0 flex items-center justify-center z-0">
+        <AnimatedLogo size="default" />
+      </div>
+
+      {/* Add the CursorEffect component - Increased z-index */}
+      <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden">
+        <CursorEffect />
+      </div>
+
+      {/* Content - Applying the HomePage container style */}
+      <div className="relative z-10 container mx-auto px-4 max-w-6xl py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

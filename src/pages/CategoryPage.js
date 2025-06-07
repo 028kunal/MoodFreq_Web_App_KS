@@ -1,16 +1,19 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAudio } from '../utils/AudioContext';
 import AudioPlayer from '../components/audio/AudioPlayer';
-import { useState, useEffect } from 'react';
+import AnimatedLogo from '../components/AnimatedLogo';
+
+// Import React Slick and its CSS
+import Slider from 'react-slick';
+import "slick-carousel/slick/slick.css"; 
+import "slick-carousel/slick/slick-theme.css";
+import CursorEffect from '../components/effects/CursorEffect';
 
 const CategoryPage = () => {
   const { category } = useParams();
   const { sounds } = useAudio();
-  const scrollContainerRef = useRef(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const cardRefs = useRef([]);
   
   const categoryTitle = {
     focus: 'Focus & Concentration',
@@ -66,202 +69,305 @@ const CategoryPage = () => {
     }
   })();
 
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
+  // Invent some placeholder testimonial data - Added even more testimonials
+  const testimonials = [
+    {
+      id: 1,
+      quote: "MindTones has truly revolutionized my approach to focus. The Beta waves are a game-changer!",
+      author: "Alex Johnson",
+      role: "Entrepreneur"
+    },
+    {
+      id: 2,
+      quote: "I've struggled with sleep for years, but the Delta waves from MindTones have helped me find restful nights again.",
+      author: "Sarah Williams",
+      role: "Graphic Designer"
+    },
+    {
+      id: 3,
+      quote: "The meditation frequencies provide such a calming experience. It's an essential part of my daily routine now.",
+      author: "Michael Chen",
+      role: "Yoga Instructor"
+    },
+     {
+      id: 4,
+      quote: "I love the nature sounds for focusing during work. It creates a peaceful and productive environment.",
+      author: "Emily Roberts",
+      role: "Writer"
+    },
+     {
+      id: 5,
+      quote: "The ability to adjust frequencies and volume is fantastic. It allows for a truly personalized experience.",
+      author: "David Lee",
+      role: "Music Producer"
+    },
+    {
+      id: 6,
+      quote: "The sound quality is exceptional, and the variety of frequencies is impressive.",
+      author: "Jessica Brown",
+      role: "Sound Engineer"
+    },
+    {
+      id: 7,
+      quote: "MindTones has become my go-to tool for relaxation and stress relief after a long day.",
+      author: "Chris Green",
+      role: "Teacher"
+    },
+    {
+      id: 8,
+      quote: "I was skeptical at first, but the focus frequencies really do help me stay on task.",
+      author: "Anna White",
+      role: "Student"
+    },
+    {
+      id: 9,
+      quote: "The user interface is clean and easy to navigate. A great experience overall.",
+      author: "Mark Black",
+      role: "Software Developer"
+    },
+    {
+      id: 10,
+      quote: "A unique and effective approach to using sound for mental well-being.",
+      author: "Sophia Blue",
+      role: "Therapist"
+    },
+    {
+      id: 11,
+      quote: "I appreciate the science-backed approach and the calming effects of the frequencies.",
+      author: "Ethan Adams",
+      role: "Researcher"
+    },
+    {
+      id: 12,
+      quote: "The app is easy to use and the sound quality is top-notch.",
+      author: "Olivia Wilson",
+      role: "Student"
+    },
+    {
+      id: 13,
+      quote: "A fantastic tool for anyone looking to improve their focus or relax.",
+      author: "Liam Taylor",
+      role: "Consultant"
+    },
+    {
+      id: 14,
+      quote: "I love the variety of categories available. Something for every mood!",
+      author: "Ava Martinez",
+      role: "Artist"
+    },
+    {
+      id: 15,
+      quote: "Highly recommend MindTones for anyone interested in exploring sound therapy.",
+      author: "Noah Brown",
+      role: "Therapist"
+    },
+    {
+      id: 16,
+      quote: "The seamless looping of sounds is perfect for extended listening sessions.",
+      author: "Isabella Garcia",
+      role: "Music Therapist"
+    },
+    {
+      id: 17,
+      quote: "I use the sleep frequencies nightly and have seen a significant improvement in my rest.",
+      author: "James Rodriguez",
+      role: "Doctor"
+    },
+    {
+      id: 18,
+      quote: "The simple design and powerful functionality make this app a winner.",
+      author: "Sofia Hernandez",
+      role: "UX Designer"
+    },
+    {
+      id: 19,
+      quote: "Finding specific frequencies for different needs is incredibly easy and effective.",
+      author: "Logan Lopez",
+      role: "Acoustic Consultant"
+    },
+    {
+      id: 20,
+      quote: "MindTones is a valuable addition to my wellness routine.",
+      author: "Mia Perez",
+      role: "Yoga Practitioner"
+    }
+  ];
 
-    // Calculate and apply extra padding-right to allow the last item to be centered
-    const adjustPadding = () => {
-      const containerWidth = container.offsetWidth;
-      const lastCard = cardRefs.current[soundsToDisplay.length - 1];
-      if (lastCard) {
-        const lastCardWidth = lastCard.offsetWidth;
-        // Calculate padding needed to scroll the last card to the center
-        const requiredPaddingRight = containerWidth / 2 - lastCardWidth / 2;
-        container.style.paddingRight = `${requiredPaddingRight}px`;
-      }
-    };
+  // State to manage which card is currently playing for the enlarge/shrink effect
+  const [playingCardId, setPlayingCardId] = React.useState(null);
+  // Ref for the frequency cards container for potential scrolling into view
+  const freqCardsRef = React.useRef(null);
 
-    // Initial adjustment and re-adjustment on resize/scroll
-    adjustPadding();
-    const resizeObserver = new ResizeObserver(adjustPadding);
-    resizeObserver.observe(container);
+  // Function to handle card click and set the playing card
+  const handleCardClick = (cardId) => {
+    setPlayingCardId(cardId);
+    // TODO: Add logic here to actually play the audio for the selected card
+    // This will likely involve finding the sound data by cardId and interacting with the useAudio context
 
-    const updateActiveIndex = () => {
-      const containerRect = container.getBoundingClientRect();
-      const containerCenterX = containerRect.left + containerRect.width / 2;
-
-      let closestIndex = 0;
-      let minDistance = Infinity;
-
-      cardRefs.current.forEach((card, index) => {
-        if (card) {
-          const cardRect = card.getBoundingClientRect();
-          const cardCenterX = cardRect.left + cardRect.width / 2;
-          const distance = Math.abs(cardCenterX - containerCenterX);
-
-          if (distance < minDistance) {
-            minDistance = distance;
-            closestIndex = index;
-          }
-        }
+    // Optional: Scroll the clicked card into view
+    const playingCardElement = freqCardsRef.current?.querySelector(`[data-sound-id="${cardId}"]`);
+    if (playingCardElement) {
+      playingCardElement.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center'
       });
-      setActiveIndex(closestIndex);
-    };
-
-    container.addEventListener('scroll', updateActiveIndex);
-    // Also run on mount to set initial active card
-    updateActiveIndex();
-
-    return () => {
-      container.removeEventListener('scroll', updateActiveIndex);
-      resizeObserver.disconnect();
-    };
-  }, [soundsToDisplay, cardRefs]);
-
-  const handleScrollLeft = () => {
-    if (scrollContainerRef.current && activeIndex > 0) {
-      // Calculate scroll position to center the previous card
-      const container = scrollContainerRef.current;
-      const previousCard = cardRefs.current[activeIndex - 1];
-      if (previousCard) {
-        const containerWidth = container.offsetWidth;
-        const cardWidth = previousCard.offsetWidth;
-        const cardLeft = previousCard.offsetLeft;
-        const scrollToLeft = cardLeft - (containerWidth / 2) + (cardWidth / 2);
-        container.scrollTo({ left: scrollToLeft, behavior: 'smooth' });
-      }
     }
   };
 
-  const handleScrollRight = () => {
-    if (scrollContainerRef.current && activeIndex < soundsToDisplay.length - 1) {
-      // Calculate scroll position to center the next card
-      const container = scrollContainerRef.current;
-      const nextCard = cardRefs.current[activeIndex + 1];
-      if (nextCard) {
-        const containerWidth = container.offsetWidth;
-        const cardWidth = nextCard.offsetWidth;
-        const cardLeft = nextCard.offsetLeft;
-        const scrollToLeft = cardLeft - (containerWidth / 2) + (cardWidth / 2);
-        container.scrollTo({ left: scrollToLeft, behavior: 'smooth' });
-      }
+  // Effect to set the first card as playing initially (optional)
+  React.useEffect(() => {
+    if (soundsToDisplay.length > 0 && playingCardId === null) {
+      setPlayingCardId(soundsToDisplay[0].sound);
     }
+  }, [soundsToDisplay, playingCardId]);
+
+  // Settings for React Slick carousel for testimonials
+  const settings = {
+    dots: false,
+    infinite: true,
+    speed: 5000, // Adjust speed for the animation
+    slidesToShow: 4.5, // Increased slidesToShow to show more cards with reduced gap
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 0, // Autoplay continuously
+    cssEase: "linear",
+    arrows: false,
+    pauseOnHover: true, // Pause animation on hover
+    // Add responsive settings if needed - Adjusted slidesToShow
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 3.5, // Adjusted slidesToShow
+          slidesToScroll: 1,
+        }
+      },
+      {
+        breakpoint: 600,
+        settings: {
+          slidesToShow: 2.5, // Adjusted slidesToShow
+          slidesToScroll: 1,
+        }
+      }
+    ]
   };
 
   return (
-    <div className="min-h-screen bg-[#1a1a2e] p-4 sm:p-6 md:p-8 lg:p-12 relative overflow-hidden"
-         style={{ 
-           /* Outer background gradient/design based on new inspiration */
-           backgroundImage: 'linear-gradient(to right, #8b5cf6, #3b82f6)', // Purple to Blue gradient
-         }}>
-      {/* White Bordered Container */}
-      <div className="relative bg-[#0D0E1B] rounded-2xl border-2 border-white w-full h-full flex flex-col overflow-hidden"
-           style={{ 
-             /* Ensure content fits inside and scrollable parts work */
-             minHeight: 'calc(100vh - 32px)', // Example: Adjust based on padding
-             maxHeight: 'calc(100vh - 32px)' // Example: Adjust based on padding
-           }}>
+    <div className="min-h-screen bg-dark-primary text-dark-text-primary py-16 relative overflow-hidden">
+      {/* Interactive background with green tint */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute w-full h-full bg-gradient-to-br from-green-900/10 via-dark-primary to-dark-primary" />
+      </div>
 
-        {/* Header Navigation - Keeping only the menu icon and logo placeholder */}
-        <div className="relative z-20 flex justify-between items-center px-8 md:px-12 py-6 border-b border-white/10">
-          <div className="flex items-center space-x-8">
-            {/* Menu Icon */}
-            <button className="p-2 focus:outline-none text-white">
-              <div className="w-6 h-0.5 bg-white mb-1.5"></div>
-              <div className="w-6 h-0.5 bg-white mb-1.5"></div>
-              <div className="w-6 h-0.5 bg-white"></div>
-            </button>
-            
-            {/* Logo/Brand (Placeholder) */}
+      {/* Animated Logo in the center background */}
+      <div className="absolute inset-0 flex items-center justify-center z-0">
+        <AnimatedLogo size="default" />
           </div>
 
-          {/* Removed Navigation Links and Sign Up Button */}
+      {/* Add the CursorEffect component - Increased z-index */}
+      <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden">
+        <CursorEffect />
         </div>
 
-        {/* Main Content Area (Below Header) */}
-        <div className="flex flex-grow overflow-hidden">
-          {/* Left Section: Title and Description */}
-          <div className="w-[65%] flex flex-col justify-center px-8 md:px-12 py-12">
+      {/* Content - Applying the HomePage container style and adjusting layout for responsiveness */}
+      <div className="relative z-10 container mx-auto px-4 max-w-6xl py-8">
+
+        {/* Header Section (Title and Subtitle) - Centered at the top */}
             <motion.div
-              initial={{ opacity: 0, x: -50 }} // Animate from left
-              animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="max-w-lg"
+          className="text-center mb-12"
             >
-              <h1 className="text-5xl md:text-6xl font-bold mb-4 leading-tight text-white">
-                {categoryTitle}
+          <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-4">
+            <span className="text-white">{categoryTitle}</span>
               </h1>
-              <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed">
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto font-light">
                 {categorySubtitle}
               </p>
-
-              {/* Decorative Elements from Inspiration */}
-              <div className="mt-12 opacity-60 space-y-3">
-                 <div className="w-40 h-0.5 bg-white"></div>
-                 <div className="w-32 h-0.5 bg-white"></div>
-                 <div className="w-48 h-0.5 bg-white"></div>
-              </div>
-
             </motion.div>
-          </div>
 
-          {/* Right Section: Horizontally Scrollable Audio Players */}
-          <div className="w-[27%] flex items-center overflow-hidden py-12 relative">
-
-            {/* Scrollable Container for Audio Players */}
-            <div id="audio-players-scroll-container" className="flex space-x-8 px-8 overflow-x-auto scrollbar-hide" /* Ensure tailwind-scrollbar-hide plugin is installed and configured */
-                 ref={scrollContainerRef}
-                 style={{
-                   /* Mask gradient for blur effect on edges */
-                   maskImage: 'linear-gradient(to right, transparent, white 10%, white 90%, transparent)',
-                   WebkitMaskImage: 'linear-gradient(to right, transparent, white 10%, white 90%, transparent)',
-                   /* Ensure content starts near the left edge */
-                   paddingLeft: '4rem', // Increase paddingLeft to match image alignment
-                   paddingRight: '2rem' // Consistent padding at end (32px)
-                  }}>
-              {soundsToDisplay.map((sound, index) => (
+        {/* Frequency Cards Section - Horizontal display with enlarge/shrink effect */}
+        {/* Using a flex container with horizontal scrolling */}
+        {/* Added ref and data attribute for scrolling into view */}
+        <div className="flex space-x-6 overflow-x-auto pb-6 no-scrollbar" ref={freqCardsRef}>
+          {soundsToDisplay.map((sound) => (
                 <motion.div
-                  key={sound.title || index}
-                  initial={{ opacity: 0, x: 50 }} // Animate from right
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 + 0.3 }}
-                  className="flex-shrink-0 w-72" // Rely on space-x-8 for spacing between cards
-                  ref={(el) => {
-                    cardRefs.current[index] = el;
-                  }}
+              key={sound.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              // Apply scale transformation based on whether this card is playing
+              className={`flex-shrink-0 w-64 ${playingCardId === sound.sound ? 'scale-105' : 'scale-95 opacity-70'} transition-transform duration-300 ease-in-out cursor-pointer frequency-card-3d-container frequency-card-3d`}
+              onClick={() => handleCardClick(sound.sound)} // Add click handler
+              data-sound-id={sound.sound} // Add data attribute for easy selection
                 >
                   <AudioPlayer
                     sound={sound.sound}
                     title={sound.title}
                     description={sound.description}
-                    isActive={index === activeIndex} // Pass isActive prop based on state
+                isActive={playingCardId === sound.sound} // Pass isActive prop based on state
                   />
                 </motion.div>
                ))}
             </div>
 
-            {/* Scroll Navigation Buttons (Placeholders, positioned relative to this section) - Moved inside the scroll section div */}
-            <button
-              className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white/10 rounded-full p-2 text-white/80 hover:text-white hover:bg-white/30 transition-colors z-20 opacity-70 ml-4"
-              onClick={handleScrollLeft}
-              aria-label="Scroll Left"
-            >
-               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"></path></svg>
-            </button>
-            <button
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white/10 rounded-full p-2 text-white/80 hover:text-white hover:bg-white/30 transition-colors z-20 opacity-70 mr-4"
-              onClick={handleScrollRight}
-              aria-label="Scroll Right"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"></path></svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Optional: Add a footer or other elements inside the border */}
+        {/* End of Frequency Cards Section */}
 
       </div>
+      {/* End of Main Content Container */}
+
+      {/* Testimonials Section - Horizontally scrolling reviews using React Slick */}
+      {/* Added margin top for spacing from the cards above and adjusted heading styling */}
+      {/* Moved outside the main container to be full width */}
+      <div className="mt-16">
+         <motion.h2
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="text-3xl font-bold text-center mb-8"
+        >
+          What Our <span className="text-green-400">Users</span> Are Saying
+        </motion.h2>
+
+        {/* React Slick Slider for testimonials */}
+        {/* Removed manual horizontal scrolling classes */}
+        <div className="w-full">
+          <Slider {...settings}>
+            {testimonials.map((testimonial) => (
+              // Reduced horizontal padding to decrease gap between cards
+              <div key={testimonial.id} className="px-1">
+                <motion.div
+                  // Removed animation for continuous horizontal movement for each card
+                  // animate={{
+                  //   x: [0, 1000, 0]
+                  // }}
+                  // transition={{
+                  //   x: { repeat: Infinity, duration: 20, ease: "linear" }
+                  // }}
+                  
+                  // Styling for testimonial cards - Increased height and reduced width
+                  className="bg-dark-secondary/30 backdrop-blur-sm rounded-xl p-6 border border-green-900/30 shadow-lg h-[250px] w-[280px] flex flex-col justify-between"
+                >
+                  <p className="text-gray-300 italic mb-4">"{testimonial.quote}"</p>
+                  <div className="flex items-center">
+                    {/* Placeholder for author image/avatar */}
+                    <div className="w-10 h-10 bg-green-500/20 rounded-full mr-4 flex-shrink-0"></div>
+                    <div>
+                      <h4 className="font-semibold text-white">{testimonial.author}</h4>
+                      <p className="text-sm text-gray-400">{testimonial.role}</p>
+                    </div>
+                  </div>
+                </motion.div>
+          </div>
+            ))}
+          </Slider>
+        </div>
+      </div>
+      {/* End of Testimonials Section */}
+
+      {/* Placeholder for the bottom section (e.g., acceptance curve) */}
+      {/* You can add a new div here for the bottom section if needed */}
 
     </div>
   );

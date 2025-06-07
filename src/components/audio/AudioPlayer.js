@@ -3,23 +3,11 @@ import { motion } from 'framer-motion';
 import { useAudio } from '../../utils/AudioContext';
 // import chimeSound from '../../assets/chime.mp3';
 
-const focusQuotes = [
-  "Stay focused and never give up.",
-  "Concentration is the secret of strength.",
-  "The successful warrior is the average man, with laser-like focus.",
-  "Focus on being productive instead of busy.",
-  "You get what you focus on, so focus wisely."
-];
-
 const AudioPlayer = ({ sound, title, description, isActive }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
-  const [timer, setTimer] = useState(0);
-  const [timerActive, setTimerActive] = useState(false);
-  const [selectedDuration, setSelectedDuration] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [carrier, setCarrier] = useState(200); // Default carrier frequency for binaural beats
-  const [quote, setQuote] = useState('');
 
   // Context for global playback control
   const { currentSound, setCurrentSound } = useAudio();
@@ -78,7 +66,6 @@ const AudioPlayer = ({ sound, title, description, isActive }) => {
       }
     }
     setIsPlaying(false);
-    setTimerActive(false);
   }, [isFrequency]);
 
   useEffect(() => {
@@ -115,29 +102,6 @@ const AudioPlayer = ({ sound, title, description, isActive }) => {
     // eslint-disable-next-line
   }, [sound]);
 
-  useEffect(() => {
-    if (title && title.includes('Beta Waves')) {
-      setQuote(focusQuotes[Math.floor(Math.random() * focusQuotes.length)]);
-    }
-  }, [title]);
-
-  useEffect(() => {
-    let interval;
-    if (timerActive && timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prev) => {
-          if (prev <= 1) {
-            setTimerActive(false);
-            stopAudio();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [timerActive, timer, stopAudio]);
-
   const playAudio = async () => {
     setCurrentSound(playerKey); // Set this as the current playing sound
     if (!audioContextRef.current) {
@@ -167,10 +131,6 @@ const AudioPlayer = ({ sound, title, description, isActive }) => {
       leftOscRef.current.start();
       rightOscRef.current.start();
       setIsPlaying(true);
-      if (selectedDuration > 0) {
-        setTimer(selectedDuration);
-        setTimerActive(true);
-      }
     } else {
       // File mode
       if (!audioBufferRef.current) {
@@ -186,10 +146,6 @@ const AudioPlayer = ({ sound, title, description, isActive }) => {
       sourceNodeRef.current.loop = true;
       sourceNodeRef.current.start(0);
       setIsPlaying(true);
-      if (selectedDuration > 0) {
-        setTimer(selectedDuration);
-        setTimerActive(true);
-      }
     }
   };
 
@@ -200,12 +156,6 @@ const AudioPlayer = ({ sound, title, description, isActive }) => {
     } else {
       await playAudio();
     }
-  };
-
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   const handleVolumeChange = (event) => {
@@ -220,47 +170,45 @@ const AudioPlayer = ({ sound, title, description, isActive }) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`relative bg-[#1e1e30c0] backdrop-filter rounded-lg shadow-xl p-5 w-72 h-[480px] flex flex-col items-center overflow-hidden transition-all duration-300 ease-in-out
+      className={`relative bg-dark-secondary/30 backdrop-blur-sm rounded-xl overflow-hidden border transition-all duration-300 ease-in-out p-6 flex flex-col h-full
         ${isActive
-          ? 'scale-105 opacity-100 blur-none shadow-purple-glow'
-          : 'scale-95 opacity-60 blur-sm shadow-md'
+          ? 'border-green-500 shadow-lg shadow-green-500/30'
+          : 'border-dark-tertiary hover:border-green-900'
         }
       `}
-      style={{ boxShadow: isActive ? '0 0 20px 5px rgba(167,139,250,0.5)' : '0 4px 16px 0 rgba(0, 0, 0, 0.3)' }} // Glowing shadow for active
     >
-      {/* Animated background gradient/particles - simplified and less intense */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-purple-800/5 via-indigo-700/5 to-transparent animate-gradient-slow" />
-        <div className="absolute bottom-0 right-0 w-full h-full bg-gradient-to-tl from-blue-800/5 via-purple-700/5 to-transparent animate-gradient-slow delay-500" />
-      </div>
-      {/* Pulsing/vibrating glowing circle - more subtle */}
+      {/* Removing animated background gradient/particles for a cleaner look as per image */}
+      {/* <div className="absolute inset-0 z-0 pointer-events-none"> */}
+      {/* <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-purple-800/5 via-indigo-700/5 to-transparent animate-gradient-slow" /> */}
+      {/* <div className="absolute bottom-0 right-0 w-full h-full bg-gradient-to-tl from-blue-800/5 via-purple-700/5 to-transparent animate-gradient-slow delay-500" /> */}
+      {/* </div> */}
       <div className="flex flex-col items-center z-10 relative flex-grow">
-        {isFrequency && (
-          <motion.div
-            animate={isPlaying ? {
-              scale: [1, 1.01, 1],
-              boxShadow: [
-                '0 0 0 0 rgba(167,139,250,0.05)',
-                '0 0 6px 3px rgba(167,139,250,0.1)',
-                '0 0 0 0 rgba(167,139,250,0.05)'
-              ],
-              opacity: [0.5, 0.7, 0.5],
-            } : { scale: 1, boxShadow: '0 0 0 0 rgba(167,139,250,0.05)', opacity: 0.5 }}
-            transition={{
-              duration: 6, // Even slower and calmer
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-            className="w-24 h-24 mb-3 rounded-full bg-gradient-radial from-purple-400/15 via-purple-200/5 to-transparent shadow-sm"
-            style={{ filter: 'blur(0.1px)' }}
-          />
-        )}
-        <h2 className="text-lg font-extrabold mb-1 text-white tracking-wide drop-shadow">{title}</h2>
-        <p className="text-xs text-gray-400 mb-3 font-medium drop-shadow">{description}</p>
+        {/* Removing Pulsing/vibrating glowing circle */}
+        {/* {isFrequency && ( */}
+        {/* <motion.div */}
+        {/* animate={isPlaying ? { */}
+        {/* scale: [1, 1.01, 1], */}
+        {/* boxShadow: [ */}
+        {/* '0 0 0 0 rgba(167,139,250,0.05)', */}
+        {/* '0 0 6px 3px rgba(167,139,250,0.1)', */}
+        {/* '0 0 0 0 rgba(167,139,250,0.05)' */}
+        {/* ], */}
+        {/* opacity: [0.5, 0.7, 0.5], */}
+        {/* } : { scale: 1, boxShadow: '0 0 0 0 rgba(167,139,250,0.05)', opacity: 0.5 }} */}
+        {/* transition={{ */}
+        {/* duration: 6, */}
+        {/* repeat: Infinity, */}
+        {/* ease: 'easeInOut', */}
+        {/* }} */}
+        {/* className="w-24 h-24 mb-3 rounded-full bg-gradient-radial from-purple-400/15 via-purple-200/5 to-transparent shadow-sm" */}
+        {/* style={{ filter: 'blur(0.1px)' }} */}
+        {/* /> */}
+        {/* )} */}
+        <h2 className="text-lg font-extrabold mb-1 text-white tracking-wide drop-shadow text-center">{title}</h2>
         {/* Carrier frequency control for binaural beats */}
         {isFrequency && (
           <div className="mb-3 w-full">
-            <label className="block text-gray-400 mb-1 font-semibold text-xs">Carrier Frequency (Hz)</label>
+            <label className="block text-gray-400 mb-1 font-semibold text-xs text-center">Carrier Frequency (Hz)</label>
             <div className="flex items-center space-x-2">
               <input
                 type="range"
@@ -269,17 +217,16 @@ const AudioPlayer = ({ sound, title, description, isActive }) => {
                 step="1"
                 value={carrier}
                 onChange={e => setCarrier(Number(e.target.value))}
-                className="w-full accent-purple-400"
+                className="w-full accent-purple-500"
                 disabled={isPlaying}
               />
               <span className="text-white font-bold text-sm">{carrier} Hz</span>
             </div>
-            <p className="text-xs text-gray-500 mt-1">(Adjust before pressing play)</p>
           </div>
         )}
         {/* Volume Control */}
         <div className="mb-3 w-full">
-          <label className="block text-gray-400 mb-1 font-semibold text-xs">Volume</label>
+          <label className="block text-gray-400 mb-1 font-semibold text-xs text-center">Volume</label>
           <input
             type="range"
             min="0"
@@ -287,16 +234,17 @@ const AudioPlayer = ({ sound, title, description, isActive }) => {
             step="0.01"
             value={volume}
             onChange={handleVolumeChange}
-            className="w-full accent-purple-400"
+            className="w-full accent-purple-500"
           />
         </div>
+        {/* Play/Stop Button */}
         <motion.button
-          whileHover={{ scale: 1.03, boxShadow: '0 0 8px 2px #a78bfa' }}
+          whileHover={{ scale: 1.03, boxShadow: '0 0 8px 2px rgba(167,139,250,0.5)' }}
           whileTap={{ scale: 0.98 }}
-          animate={isPlaying ? { boxShadow: '0 0 10px 3px #a78bfa' } : { boxShadow: 'none' }}
+          animate={isPlaying ? { boxShadow: '0 0 10px 3px rgba(167,139,250,0.7)' } : { boxShadow: 'none' }}
           onClick={togglePlay}
           disabled={isLoading}
-          className={`bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-bold py-1.5 px-6 rounded-full transition-all duration-300 shadow-lg mt-auto text-sm tracking-wide ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`bg-purple-600 hover:bg-purple-700 text-white font-bold py-1.5 px-6 rounded-full transition-all duration-300 shadow-lg mt-auto text-sm tracking-wide ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {isLoading ? (
             <span className="flex items-center text-xs">
@@ -323,31 +271,12 @@ const AudioPlayer = ({ sound, title, description, isActive }) => {
             </span>
           )}
         </motion.button>
-        {/* Motivational Quote */}
-        {title && title.includes('Beta Waves') && quote && (
-          <div className="mb-3 text-center text-xs italic text-purple-300 font-semibold drop-shadow animate-fade-in-slow">{quote}</div>
+        {/* Quote line - Using description and styling smaller */}
+        {description && (
+          <div className="mt-4 text-center text-xs italic text-gray-400 font-semibold">{description}</div>
         )}
-        {/* Quick Timer Presets */}
-        {title && title.includes('Beta Waves') && (timer === 0 || selectedDuration === 0) && (
-          <div className="mb-2 w-full flex flex-wrap justify-center gap-1.5 px-0.5">
-            {[5, 10, 15, 25, 50].map((min) => (
-              <button
-                key={min}
-                onClick={() => {
-                  setTimer(min * 60);
-                  setSelectedDuration(min * 60);
-                }}
-                className={`px-2.5 py-1 rounded-full text-xs font-bold transition-all duration-300 min-w-[40px] ${selectedDuration === min * 60 ? 'bg-purple-600 text-white shadow-md' : 'bg-gray-800 text-purple-300 hover:bg-purple-700/50'}`}
-              >
-                {min}m
-              </button>
-            ))}
-          </div>
-        )}
-        {/* Active Timer Display (show only when timer is active) */}
-        {timer > 0 && selectedDuration > 0 && (
-           <div className="mb-2 text-center text-sm font-bold text-purple-400">{formatTime(timer)} remaining</div>
-        )}
+        {/* Removed Quick Timer Presets */}
+        {/* Removed Active Timer Display */}
       </div>
     </motion.div>
   );
